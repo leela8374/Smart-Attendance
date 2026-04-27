@@ -5,12 +5,11 @@ Database helpers – all DynamoDB interactions live here.
 import uuid
 import logging
 from datetime import date, datetime
+from typing import Optional, List
 
 from boto3.dynamodb.conditions import Key, Attr
 from aws_clients import table
 from flask import current_app
-
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,6 @@ def create_user(username: str, password_hash: str, role: str,
     return item
 
 
-
 def get_user_by_username(username: str) -> Optional[dict]:
     """Scan users table for a matching username (username is unique)."""
     t = table("DYNAMO_USERS_TABLE")
@@ -48,13 +46,13 @@ def get_user_by_username(username: str) -> Optional[dict]:
     return items[0] if items else None
 
 
-def get_user_by_id(user_id: str) -> dict | None:
+def get_user_by_id(user_id: str) -> Optional[dict]:
     t = table("DYNAMO_USERS_TABLE")
     resp = t.get_item(Key={"user_id": user_id})
     return resp.get("Item")
 
 
-def list_users_by_role(role: str) -> list:
+def list_users_by_role(role: str) -> List[dict]:
     t = table("DYNAMO_USERS_TABLE")
     resp = t.scan(FilterExpression=Attr("role").eq(role))
     return resp.get("Items", [])
@@ -78,19 +76,19 @@ def create_course(course_name: str, course_code: str, faculty_id: str) -> dict:
     return item
 
 
-def get_course(course_id: str) -> dict | None:
+def get_course(course_id: str) -> Optional[dict]:
     t = table("DYNAMO_COURSES_TABLE")
     resp = t.get_item(Key={"course_id": course_id})
     return resp.get("Item")
 
 
-def list_courses_by_faculty(faculty_id: str) -> list:
+def list_courses_by_faculty(faculty_id: str) -> List[dict]:
     t = table("DYNAMO_COURSES_TABLE")
     resp = t.scan(FilterExpression=Attr("faculty_id").eq(faculty_id))
     return resp.get("Items", [])
 
 
-def list_all_courses() -> list:
+def list_all_courses() -> List[dict]:
     t = table("DYNAMO_COURSES_TABLE")
     resp = t.scan()
     return resp.get("Items", [])
@@ -112,13 +110,13 @@ def enroll_student(course_id: str, student_id: str) -> dict:
     return item
 
 
-def get_students_in_course(course_id: str) -> list:
+def get_students_in_course(course_id: str) -> List[dict]:
     t = table("DYNAMO_ENROLLMENT_TABLE")
     resp = t.scan(FilterExpression=Attr("course_id").eq(course_id))
     return resp.get("Items", [])
 
 
-def get_courses_for_student(student_id: str) -> list:
+def get_courses_for_student(student_id: str) -> List[dict]:
     t = table("DYNAMO_ENROLLMENT_TABLE")
     resp = t.scan(FilterExpression=Attr("student_id").eq(student_id))
     return resp.get("Items", [])
@@ -129,7 +127,7 @@ def get_courses_for_student(student_id: str) -> list:
 # ══════════════════════════════════════════════════════════════════════════════
 
 def mark_attendance(course_id: str, student_id: str,
-                    status: str, date_str: str | None = None) -> dict:
+                    status: str, date_str: Optional[str] = None) -> dict:
     """
     Mark a single attendance record.
     status: 'present' | 'absent'
@@ -152,7 +150,7 @@ def mark_attendance(course_id: str, student_id: str,
     return item
 
 
-def get_attendance_for_student_course(student_id: str, course_id: str) -> list:
+def get_attendance_for_student_course(student_id: str, course_id: str) -> List[dict]:
     t = table("DYNAMO_ATTENDANCE_TABLE")
     resp = t.scan(
         FilterExpression=(
@@ -162,7 +160,7 @@ def get_attendance_for_student_course(student_id: str, course_id: str) -> list:
     return resp.get("Items", [])
 
 
-def get_attendance_for_course_date(course_id: str, date_str: str) -> list:
+def get_attendance_for_course_date(course_id: str, date_str: str) -> List[dict]:
     t = table("DYNAMO_ATTENDANCE_TABLE")
     resp = t.scan(
         FilterExpression=(
