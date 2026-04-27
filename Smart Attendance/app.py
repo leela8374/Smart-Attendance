@@ -3,6 +3,9 @@ Smart Attendance Alert System
 Main Flask Application Entry Point
 """
 
+from dotenv import load_dotenv
+load_dotenv()  # Load .env BEFORE config reads os.environ
+
 from flask import Flask
 from config import Config
 from routes.auth import auth_bp

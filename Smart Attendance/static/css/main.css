@@ -391,4 +391,80 @@ select.form-input { cursor: pointer; }
   .two-col      { grid-template-columns: 1fr; }
   .main-content { padding: 1rem 1rem 3rem; }
   .page-header  { flex-direction: column; }
+  .form-row     { flex-direction: column; }
+  .auth-card-wide { flex-direction: column; }
 }
+
+/* ─── Registration Extras ─────────────────────────────────────── */
+.auth-card-wide { max-width: 1000px; }
+
+/* Role tabs */
+.role-tabs {
+  display: flex; gap: 0.5rem;
+  background: var(--bg-3); border-radius: var(--radius-sm);
+  padding: 0.3rem; margin-bottom: 1.5rem;
+}
+.role-tab {
+  flex: 1; padding: 0.55rem 1rem;
+  background: transparent; border: none; cursor: pointer;
+  border-radius: calc(var(--radius-sm) - 2px);
+  font-family: inherit; font-size: 0.875rem; font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+.role-tab.active {
+  background: var(--accent); color: #000;
+  box-shadow: 0 2px 12px rgba(255,153,0,.35);
+}
+
+/* Form rows */
+.form-row {
+  display: flex; gap: 1rem;
+}
+.form-row .form-group { flex: 1; }
+
+/* Role info banner */
+.role-info-box {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  background: var(--accent-glow); border: 1px solid rgba(255,153,0,.25);
+  border-radius: var(--radius-sm); padding: 0.75rem 1rem;
+  font-size: 0.825rem; color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  animation: fadeIn .3s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; } }
+
+/* Password strength */
+.password-strength {
+  height: 4px; border-radius: 999px;
+  background: var(--bg-3); margin-top: 0.4rem; overflow: hidden;
+}
+.strength-fill {
+  height: 100%; border-radius: 999px;
+  transition: width .3s ease, background .3s ease;
+  width: 0;
+}
+.strength-label, .match-label {
+  font-size: 0.72rem; font-weight: 600; margin-top: 0.25rem;
+  display: block;
+}
+
+/* Auth divider */
+.auth-divider {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin: 1.25rem 0; color: var(--text-muted); font-size: 0.8rem;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+}
+
+/* Auth switch */
+.auth-switch {
+  margin-top: 2rem; font-size: 0.875rem; color: var(--text-muted);
+}
+.auth-switch-link {
+  color: var(--accent); font-weight: 600; margin-left: 0.4rem;
+}
+.auth-switch-link:hover { text-decoration: underline; }
+

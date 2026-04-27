@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card auth-card-wide">
+
+    <!-- Left Panel -->
+    <div class="auth-left">
+      <div class="auth-brand">
+        <div class="auth-icon">📡</div>
+        <h1 class="auth-title">SmartAttend</h1>
+        <p class="auth-subtitle">Create your account and start tracking attendance in the cloud.</p>
+      </div>
+      <ul class="auth-features">
+        <li><span class="feat-icon">🎓</span> Students — view your real-time attendance</li>
+        <li><span class="feat-icon">👩‍🏫</span> Faculty — mark &amp; manage class attendance</li>
+        <li><span class="feat-icon">⚠️</span> Auto email alerts when below 75%</li>
+        <li><span class="feat-icon">☁️</span> Powered by AWS DynamoDB &amp; SNS</li>
+      </ul>
+      <div class="auth-switch">
+        Already have an account?
+        <a href="{{ url_for('auth.login_page') }}" class="auth-switch-link">Sign In →</a>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="auth-right">
+      <h2 class="form-title">Create Account</h2>
+      <p class="form-sub">Fill in your details to get started</p>
+
+      <!-- Role Selector Tabs -->
+      <div class="role-tabs" id="role-tabs">
+        <button type="button" class="role-tab active" data-role="student"
+                onclick="selectRole('student')">
+          🎓 Student
+        </button>
+        <button type="button" class="role-tab" data-role="faculty"
+                onclick="selectRole('faculty')">
+          👩‍🏫 Faculty
+        </button>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.register_page') }}"
+            id="register-form" novalidate>
+
+        <input type="hidden" name="role" id="role-input"
+               value="{{ form.get('role', 'student') }}"/>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" name="full_name" class="form-input"
+                     placeholder="e.g. Ravi Kumar"
+                     value="{{ form.get('full_name', '') }}" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔖</span>
+              <input type="text" name="username" class="form-input"
+                     placeholder="e.g. ravi2024" minlength="3"
+                     value="{{ form.get('username', '') }}" required/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input type="email" name="email" class="form-input"
+                   placeholder="e.g. ravi@college.edu"
+                   value="{{ form.get('email', '') }}" required/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" name="password" id="password"
+                     class="form-input" placeholder="Min. 6 characters"
+                     minlength="6" required
+                     oninput="checkStrength(this.value)"/>
+            </div>
+            <div class="password-strength" id="strength-bar">
+              <div class="strength-fill" id="strength-fill"></div>
+            </div>
+            <span class="strength-label" id="strength-label"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" name="confirm_pw" id="confirm_pw"
+                     class="form-input" placeholder="Repeat password"
+                     required oninput="checkMatch()"/>
+            </div>
+            <span class="match-label" id="match-label"></span>
+          </div>
+        </div>
+
+        <!-- Role info banner -->
+        <div class="role-info-box" id="role-info">
+          <span id="role-info-icon">🎓</span>
+          <span id="role-info-text">Registering as <strong>Student</strong> — you can view your attendance percentage across all enrolled courses.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="reg-btn">
+          Create Account
+        </button>
+      </form>
+
+      <p class="login-hint">
+        By creating an account you agree to attend classes regularly.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Role Tabs ──────────────────────────────────
+const roleInfo = {
+  student: {
+    icon: '🎓',
+    text: 'Registering as <strong>Student</strong> — you can view your attendance percentage across all enrolled courses.'
+  },
+  faculty: {
+    icon: '👩‍🏫',
+    text: 'Registering as <strong>Faculty</strong> — you can mark attendance and view reports for your courses.'
+  }
+};
+
+function selectRole(role) {
+  document.getElementById('role-input').value = role;
+  document.querySelectorAll('.role-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.role === role);
+  });
+  document.getElementById('role-info-icon').textContent = roleInfo[role].icon;
+  document.getElementById('role-info-text').innerHTML   = roleInfo[role].text;
+}
+
+// Set saved role on page load
+const savedRole = document.getElementById('role-input').value || 'student';
+selectRole(savedRole);
+
+// ── Password Strength ──────────────────────────
+function checkStrength(val) {
+  const bar = document.getElementById('strength-fill');
+  const lbl = document.getElementById('strength-label');
+  let score = 0;
+  if (val.length >= 6)  score++;
+  if (val.length >= 10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const levels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+  const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#10b981'];
+  bar.style.width = (score / 5 * 100) + '%';
+  bar.style.background = colors[score] || 'transparent';
+  lbl.textContent = levels[score] || '';
+  lbl.style.color = colors[score] || '';
+}
+
+// ── Password Match ─────────────────────────────
+function checkMatch() {
+  const p1  = document.getElementById('password').value;
+  const p2  = document.getElementById('confirm_pw').value;
+  const lbl = document.getElementById('match-label');
+  if (!p2) { lbl.textContent = ''; return; }
+  if (p1 === p2) {
+    lbl.textContent = '✅ Passwords match';
+    lbl.style.color = '#22c55e';
+  } else {
+    lbl.textContent = '❌ Passwords do not match';
+    lbl.style.color = '#ef4444';
+  }
+}
+</script>
+{% endblock %}

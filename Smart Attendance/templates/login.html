@@ -4,7 +4,8 @@
 {% block content %}
 <div class="auth-wrapper">
   <div class="auth-card">
-    <!-- Left panel -->
+
+    <!-- Left Panel -->
     <div class="auth-left">
       <div class="auth-brand">
         <div class="auth-icon">📡</div>
@@ -17,14 +18,20 @@
         <li><span class="feat-icon">⚠️</span> Automated Email Alerts via SNS</li>
         <li><span class="feat-icon">☁️</span> Secure AWS DynamoDB Storage</li>
       </ul>
+      <div class="auth-switch">
+        New here?
+        <a href="{{ url_for('auth.register_page') }}" class="auth-switch-link">Create an account →</a>
+      </div>
     </div>
 
-    <!-- Right panel -->
+    <!-- Right Panel -->
     <div class="auth-right">
       <h2 class="form-title">Welcome Back</h2>
-      <p class="form-sub">Sign in to continue</p>
+      <p class="form-sub">Sign in to your account</p>
 
-      <form method="POST" action="{{ url_for('auth.login_page') }}" class="login-form" id="login-form" novalidate>
+      <form method="POST" action="{{ url_for('auth.login_page') }}"
+            id="login-form" novalidate>
+
         <div class="form-group">
           <label for="username" class="form-label">Username</label>
           <div class="input-wrapper">
@@ -40,29 +47,39 @@
             <span class="input-icon">🔒</span>
             <input type="password" id="password" name="password" class="form-input"
                    placeholder="Enter your password" required autocomplete="current-password"/>
-            <button type="button" class="toggle-pwd" onclick="togglePassword()" title="Show/hide password">👁</button>
+            <button type="button" class="toggle-pwd"
+                    onclick="togglePwd()" title="Show/hide">👁</button>
           </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-full" id="login-btn">
           <span class="btn-text">Sign In</span>
-          <span class="btn-loader hidden">⏳</span>
+          <span class="btn-loader hidden">⏳ Signing in…</span>
         </button>
       </form>
 
-      <p class="login-hint">Use your admin-provided credentials to log in.</p>
+      <div class="auth-divider"><span>OR</span></div>
+
+      <a href="{{ url_for('auth.register_page') }}" class="btn btn-outline btn-full">
+        ✏️ Create New Account
+      </a>
+
+      <p class="login-hint">
+        Contact admin if you've forgotten your password.
+      </p>
     </div>
   </div>
 </div>
 
 <script>
-function togglePassword() {
+function togglePwd() {
   const pw = document.getElementById('password');
   pw.type = (pw.type === 'password') ? 'text' : 'password';
 }
-document.getElementById('login-form').addEventListener('submit', function(){
+document.getElementById('login-form').addEventListener('submit', function() {
   document.querySelector('.btn-text').classList.add('hidden');
   document.querySelector('.btn-loader').classList.remove('hidden');
+  document.getElementById('login-btn').disabled = true;
 });
 </script>
 {% endblock %}
