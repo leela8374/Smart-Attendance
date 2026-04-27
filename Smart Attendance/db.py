@@ -10,6 +10,8 @@ from boto3.dynamodb.conditions import Key, Attr
 from aws_clients import table
 from flask import current_app
 
+from typing import Optional
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,7 +39,8 @@ def create_user(username: str, password_hash: str, role: str,
     return item
 
 
-def get_user_by_username(username: str) -> dict | None:
+
+def get_user_by_username(username: str) -> Optional[dict]:
     """Scan users table for a matching username (username is unique)."""
     t = table("DYNAMO_USERS_TABLE")
     resp = t.scan(FilterExpression=Attr("username").eq(username))
