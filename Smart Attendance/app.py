@@ -35,11 +35,30 @@ def create_app():
     app.register_blueprint(admin_bp,   url_prefix="/admin")
 
     # Root redirect
-    from flask import redirect, url_for
+    from flask import redirect, url_for, jsonify
+    from aws_clients import check_dynamodb_connection
+    import os
 
     @app.route("/")
     def index():
         return redirect(url_for("auth.login_page"))
+
+    @app.route("/health")
+    def health():
+        """
+        Health-check endpoint — open in browser to diagnose AWS issues.
+        http://<ec2-ip>:5000/health
+        """
+        status = check_dynamodb_connection()
+        status["env"] = {
+            "AWS_REGION":              os.environ.get("AWS_REGION",              "NOT SET"),
+            "DYNAMO_USERS_TABLE":      os.environ.get("DYNAMO_USERS_TABLE",      "NOT SET"),
+            "DYNAMO_COURSES_TABLE":    os.environ.get("DYNAMO_COURSES_TABLE",    "NOT SET"),
+            "DYNAMO_ATTENDANCE_TABLE": os.environ.get("DYNAMO_ATTENDANCE_TABLE", "NOT SET"),
+            "DYNAMO_ENROLLMENT_TABLE": os.environ.get("DYNAMO_ENROLLMENT_TABLE", "NOT SET"),
+            "SNS_TOPIC_ARN":           os.environ.get("SNS_TOPIC_ARN",           "NOT SET"),
+        }
+        return jsonify(status), 200 if status["ok"] else 503
 
     return app
 
