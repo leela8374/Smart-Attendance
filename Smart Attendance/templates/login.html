@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <!-- Left panel -->
+    <div class="auth-left">
+      <div class="auth-brand">
+        <div class="auth-icon">📡</div>
+        <h1 class="auth-title">SmartAttend</h1>
+        <p class="auth-subtitle">Intelligent Attendance Tracking<br>powered by AWS Cloud</p>
+      </div>
+      <ul class="auth-features">
+        <li><span class="feat-icon">🎓</span> Student &amp; Faculty Portals</li>
+        <li><span class="feat-icon">📊</span> Real-time Attendance Analytics</li>
+        <li><span class="feat-icon">⚠️</span> Automated Email Alerts via SNS</li>
+        <li><span class="feat-icon">☁️</span> Secure AWS DynamoDB Storage</li>
+      </ul>
+    </div>
+
+    <!-- Right panel -->
+    <div class="auth-right">
+      <h2 class="form-title">Welcome Back</h2>
+      <p class="form-sub">Sign in to continue</p>
+
+      <form method="POST" action="{{ url_for('auth.login_page') }}" class="login-form" id="login-form" novalidate>
+        <div class="form-group">
+          <label for="username" class="form-label">Username</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="username" name="username" class="form-input"
+                   placeholder="Enter your username" required autocomplete="username"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" name="password" class="form-input"
+                   placeholder="Enter your password" required autocomplete="current-password"/>
+            <button type="button" class="toggle-pwd" onclick="togglePassword()" title="Show/hide password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-loader hidden">⏳</span>
+        </button>
+      </form>
+
+      <p class="login-hint">Use your admin-provided credentials to log in.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePassword() {
+  const pw = document.getElementById('password');
+  pw.type = (pw.type === 'password') ? 'text' : 'password';
+}
+document.getElementById('login-form').addEventListener('submit', function(){
+  document.querySelector('.btn-text').classList.add('hidden');
+  document.querySelector('.btn-loader').classList.remove('hidden');
+});
+</script>
+{% endblock %}

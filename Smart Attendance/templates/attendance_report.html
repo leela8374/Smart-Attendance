@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Attendance Report – {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{{ url_for('faculty.dashboard') }}" class="back-link">← Back to Dashboard</a>
+    <h1 class="page-title">Attendance Report</h1>
+    <p class="page-sub"><strong>{{ course.course_name }}</strong> · Alert threshold: {{ threshold }}%</p>
+  </div>
+  <button class="btn btn-warning"
+          onclick="sendAlerts('{{ course.course_id }}', this)">
+    🔔 Send Alerts to Low Attendees
+  </button>
+</div>
+
+<!-- Summary cards -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-val">{{ rows|length }}</div>
+    <div class="stat-label">Total Students</div>
+  </div>
+  <div class="stat-card stat-warn">
+    <div class="stat-icon">⚠️</div>
+    <div class="stat-val">{{ rows | selectattr('below_threshold') | list | length }}</div>
+    <div class="stat-label">Below {{ threshold }}%</div>
+  </div>
+  <div class="stat-card stat-ok">
+    <div class="stat-icon">✅</div>
+    <div class="stat-val">{{ rows | rejectattr('below_threshold') | list | length }}</div>
+    <div class="stat-label">Above Threshold</div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="card-toolbar">
+    <input type="text" id="search" placeholder="🔍 Search by name…" class="form-input search-input"
+           oninput="filterTable(this.value)"/>
+  </div>
+  <div class="student-table-wrapper">
+    <table class="data-table" id="report-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student Name</th>
+          <th>Email</th>
+          <th class="text-center">Total Classes</th>
+          <th class="text-center">Present</th>
+          <th class="text-center">Absent</th>
+          <th class="text-center">Percentage</th>
+          <th class="text-center">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr class="{{ 'row-alert' if row.below_threshold else 'row-ok' }}">
+          <td>{{ loop.index }}</td>
+          <td><span class="avatar-initial">{{ row.student_name[0] }}</span> {{ row.student_name }}</td>
+          <td class="text-muted">{{ row.student_email }}</td>
+          <td class="text-center">{{ row.total }}</td>
+          <td class="text-center text-green">{{ row.present }}</td>
+          <td class="text-center text-red">{{ row.absent }}</td>
+          <td class="text-center">
+            <div class="pct-bar-wrapper">
+              <div class="pct-bar {% if row.below_threshold %}pct-danger{% else %}pct-safe{% endif %}"
+                   style="width: {{ [row.percentage, 100]|min }}%"></div>
+              <span class="pct-label">{{ row.percentage }}%</span>
+            </div>
+          </td>
+          <td class="text-center">
+            {% if row.below_threshold %}
+              <span class="badge badge-danger">⚠️ Low</span>
+            {% else %}
+              <span class="badge badge-success">✅ OK</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function filterTable(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#report-table tbody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+async function sendAlerts(courseId, btn) {
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending…';
+  try {
+    const res = await fetch(`/faculty/send-alerts/${courseId}`, { method: 'POST' });
+    const data = await res.json();
+    alert(`✅ Alerts sent: ${data.sent} | Failed: ${data.failed}`);
+  } catch(e) { alert('❌ Error sending alerts.'); }
+  finally {
+    btn.disabled = false;
+    btn.textContent = '🔔 Send Alerts to Low Attendees';
+  }
+}
+</script>
+{% endblock %}

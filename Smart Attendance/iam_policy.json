@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DynamoDBFullAccessOnSASTables",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:CreateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:ListTables",
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Scan",
+        "dynamodb:Query",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:BatchGetItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:*:*:table/sas_users",
+        "arn:aws:dynamodb:*:*:table/sas_courses",
+        "arn:aws:dynamodb:*:*:table/sas_attendance",
+        "arn:aws:dynamodb:*:*:table/sas_enrollment"
+      ]
+    },
+    {
+      "Sid": "SNSPublishAlerts",
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish",
+        "sns:CreateTopic",
+        "sns:Subscribe",
+        "sns:ListTopics",
+        "sns:GetTopicAttributes"
+      ],
+      "Resource": "arn:aws:sns:*:*:SmartAttendanceAlerts"
+    }
+  ]
+}

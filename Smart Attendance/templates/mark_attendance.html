@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Mark Attendance – {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{{ url_for('faculty.dashboard') }}" class="back-link">← Back to Dashboard</a>
+    <h1 class="page-title">Mark Attendance</h1>
+    <p class="page-sub"><strong>{{ course.course_name }}</strong> ({{ course.course_code }})</p>
+  </div>
+</div>
+
+<div class="card">
+  <form method="POST" id="attendance-form">
+    <div class="form-group form-inline">
+      <label for="date" class="form-label">Date</label>
+      <input type="date" id="date" name="date" class="form-input date-input"
+             value="{{ today }}" max="{{ today }}" required/>
+    </div>
+
+    <div class="attendance-toolbar">
+      <button type="button" class="btn btn-outline btn-sm" onclick="markAll('present')">✅ All Present</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="markAll('absent')">❌ All Absent</button>
+      <span class="counter-display" id="counter">0 / {{ students|length }} Present</span>
+    </div>
+
+    {% if students %}
+    <div class="student-table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student Name</th>
+            <th>Email</th>
+            <th class="text-center">Present</th>
+            <th class="text-center">Absent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr id="row-{{ student.user_id }}" class="{% if already_marked.get(student.user_id) == 'present' %}row-present{% elif already_marked.get(student.user_id) == 'absent' %}row-absent{% endif %}">
+            <td>{{ loop.index }}</td>
+            <td><span class="avatar-initial">{{ student.full_name[0] }}</span> {{ student.full_name }}</td>
+            <td class="text-muted">{{ student.email }}</td>
+            <td class="text-center">
+              <input type="radio" name="status_{{ student.user_id }}" value="present"
+                     id="p_{{ student.user_id }}"
+                     {% if already_marked.get(student.user_id, 'present') == 'present' %}checked{% endif %}
+                     onchange="updateRow('{{ student.user_id }}', 'present')"
+                     class="radio-btn radio-present"/>
+              <label for="p_{{ student.user_id }}" class="radio-label">✅</label>
+            </td>
+            <td class="text-center">
+              <input type="radio" name="status_{{ student.user_id }}" value="absent"
+                     id="a_{{ student.user_id }}"
+                     {% if already_marked.get(student.user_id) == 'absent' %}checked{% endif %}
+                     onchange="updateRow('{{ student.user_id }}', 'absent')"
+                     class="radio-btn radio-absent"/>
+              <label for="a_{{ student.user_id }}" class="radio-label">❌</label>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 Save Attendance &amp; Check Alerts</button>
+      <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">👥</div>
+      <h3>No students enrolled</h3>
+      <p>Ask the admin to enroll students in this course.</p>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+<script>
+function updateCounter() {
+  const total = {{ students|length }};
+  const checked = document.querySelectorAll('input[value="present"]:checked').length;
+  document.getElementById('counter').textContent = `${checked} / ${total} Present`;
+}
+function updateRow(uid, status) {
+  const row = document.getElementById('row-' + uid);
+  row.classList.remove('row-present', 'row-absent');
+  row.classList.add('row-' + status);
+  updateCounter();
+}
+function markAll(status) {
+  document.querySelectorAll('input[type="radio"][value="' + status + '"]').forEach(r => {
+    r.checked = true;
+    const uid = r.name.replace('status_', '');
+    updateRow(uid, status);
+  });
+}
+updateCounter();
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Admin Panel</h1>
+    <p class="page-sub">Manage users, courses, and enrollments</p>
+  </div>
+  <div class="header-actions">
+    <a href="{{ url_for('admin.create_user_page') }}" class="btn btn-primary">➕ Add User</a>
+    <a href="{{ url_for('admin.create_course_page') }}" class="btn btn-outline">📚 Add Course</a>
+    <a href="{{ url_for('admin.enroll_page') }}" class="btn btn-outline">🔗 Enroll Student</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-val">{{ students|length }}</div><div class="stat-label">Students</div></div>
+  <div class="stat-card"><div class="stat-icon">👩‍🏫</div><div class="stat-val">{{ faculty|length }}</div><div class="stat-label">Faculty</div></div>
+  <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-val">{{ courses|length }}</div><div class="stat-label">Courses</div></div>
+</div>
+
+<div class="two-col">
+  <!-- Students -->
+  <div class="card">
+    <h3 class="card-title">👨‍🎓 Students</h3>
+    <div class="student-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Email</th></tr></thead>
+        <tbody>
+          {% for s in students %}
+          <tr><td>{{ s.full_name }}</td><td>{{ s.username }}</td><td class="text-muted">{{ s.email }}</td></tr>
+          {% else %}
+          <tr><td colspan="3" class="text-center text-muted">No students yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Faculty -->
+  <div class="card">
+    <h3 class="card-title">👩‍🏫 Faculty</h3>
+    <div class="student-table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Email</th></tr></thead>
+        <tbody>
+          {% for f in faculty %}
+          <tr><td>{{ f.full_name }}</td><td>{{ f.username }}</td><td class="text-muted">{{ f.email }}</td></tr>
+          {% else %}
+          <tr><td colspan="3" class="text-center text-muted">No faculty yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Courses -->
+<div class="card">
+  <h3 class="card-title">📚 Courses</h3>
+  <div class="student-table-wrapper">
+    <table class="data-table">
+      <thead><tr><th>Code</th><th>Course Name</th><th>Faculty ID</th><th>Created</th></tr></thead>
+      <tbody>
+        {% for c in courses %}
+        <tr>
+          <td><span class="course-code-badge">{{ c.course_code }}</span></td>
+          <td>{{ c.course_name }}</td>
+          <td class="text-muted">{{ c.faculty_id[:8] }}…</td>
+          <td class="text-muted">{{ c.created_at[:10] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted">No courses yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

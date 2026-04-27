@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Smart Attendance{% endblock %} – Smart Attendance System</title>
+  <meta name="description" content="Smart Attendance Alert System powered by AWS EC2, DynamoDB & SNS"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if session.get('role') %}
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="brand-icon">📡</span>
+    <span class="brand-text">SmartAttend</span>
+  </div>
+  <div class="navbar-links">
+    {% if session.role == 'faculty' %}
+      <a href="{{ url_for('faculty.dashboard') }}" class="nav-link {% if request.endpoint == 'faculty.dashboard' %}active{% endif %}">Dashboard</a>
+    {% elif session.role == 'student' %}
+      <a href="{{ url_for('student.dashboard') }}" class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}">My Attendance</a>
+    {% elif session.role == 'admin' %}
+      <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">Admin Panel</a>
+    {% endif %}
+  </div>
+  <div class="navbar-user">
+    <span class="user-badge role-{{ session.role }}">{{ session.role | upper }}</span>
+    <span class="user-name">{{ session.full_name }}</span>
+    <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<main class="main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">
+            <span>{{ msg }}</span>
+            <button onclick="this.parentElement.remove()">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

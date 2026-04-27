@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Attendance Details – {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{{ url_for('student.dashboard') }}" class="back-link">← Back</a>
+    <h1 class="page-title">{{ course.course_name }}</h1>
+    <p class="page-sub">Your detailed attendance record</p>
+  </div>
+  <div class="big-pct {% if percentage < threshold %}pct-red{% else %}pct-green{% endif %}">
+    {{ percentage }}%
+    <small>{{ "⚠️ Below Threshold" if percentage < threshold else "✅ Good Standing" }}</small>
+  </div>
+</div>
+
+<div class="card">
+  {% if records %}
+  <div class="student-table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>Date</th><th class="text-center">Status</th></tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r.date }}</td>
+          <td class="text-center">
+            {% if r.status == 'present' %}
+              <span class="badge badge-success">✅ Present</span>
+            {% else %}
+              <span class="badge badge-danger">❌ Absent</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No attendance records yet</h3>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

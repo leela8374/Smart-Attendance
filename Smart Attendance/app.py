@@ -1,0 +1,46 @@
+"""
+Smart Attendance Alert System
+Main Flask Application Entry Point
+"""
+
+from flask import Flask
+from config import Config
+from routes.auth import auth_bp
+from routes.faculty import faculty_bp
+from routes.student import student_bp
+from routes.admin import admin_bp
+import logging
+
+# ─────────────────────────────────────────────
+# Logging
+# ─────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)s  %(name)s  %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+def create_app():
+    app = Flask(__name__, template_folder="templates", static_folder="static")
+    app.config.from_object(Config)
+
+    # Register blueprints
+    app.register_blueprint(auth_bp,    url_prefix="/auth")
+    app.register_blueprint(faculty_bp, url_prefix="/faculty")
+    app.register_blueprint(student_bp, url_prefix="/student")
+    app.register_blueprint(admin_bp,   url_prefix="/admin")
+
+    # Root redirect
+    from flask import redirect, url_for
+
+    @app.route("/")
+    def index():
+        return redirect(url_for("auth.login_page"))
+
+    return app
+
+
+if __name__ == "__main__":
+    app = create_app()
+    app.run(host="0.0.0.0", port=5000, debug=False)

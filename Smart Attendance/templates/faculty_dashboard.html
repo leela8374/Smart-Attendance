@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Faculty Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Faculty Dashboard</h1>
+    <p class="page-sub">Welcome, <strong>{{ full_name }}</strong> — manage your courses below.</p>
+  </div>
+</div>
+
+{% if courses %}
+<div class="card-grid">
+  {% for course in courses %}
+  <div class="course-card">
+    <div class="course-card-header">
+      <span class="course-code-badge">{{ course.course_code }}</span>
+      <span class="course-menu">📚</span>
+    </div>
+    <h3 class="course-name">{{ course.course_name }}</h3>
+    <div class="course-actions">
+      <a href="{{ url_for('faculty.mark_attendance_page', course_id=course.course_id) }}"
+         class="btn btn-primary btn-sm">✏️ Mark Attendance</a>
+      <a href="{{ url_for('faculty.attendance_report', course_id=course.course_id) }}"
+         class="btn btn-outline btn-sm">📊 View Report</a>
+      <button class="btn btn-warning btn-sm"
+              onclick="sendAlerts('{{ course.course_id }}', this)">
+        🔔 Send Alerts
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">📭</div>
+  <h3>No courses assigned yet</h3>
+  <p>Contact your administrator to assign courses to your account.</p>
+</div>
+{% endif %}
+
+<script>
+async function sendAlerts(courseId, btn) {
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending…';
+  try {
+    const res = await fetch(`/faculty/send-alerts/${courseId}`, { method: 'POST' });
+    const data = await res.json();
+    alert(`✅ Alerts sent: ${data.sent} | Failed: ${data.failed}`);
+  } catch(e) {
+    alert('❌ Error sending alerts.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔔 Send Alerts';
+  }
+}
+</script>
+{% endblock %}
